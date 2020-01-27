@@ -7,42 +7,27 @@ This app requires the following packages : shiny, shinyFiles, org.Hs.eg.db, org.
 To install shiny and db packages, in R run:
 
 install.packages('shiny')
-
 install.packages('shinyFiles')
-
 install.packages('devtools')
-
-source('http://bioconductor.org/biocLite.R')
-
-biocLite('org.Hs.eg.db')
-
-biocLite('org.Mm.eg.db')
-
-biocLite('GO.db')
-
+install.packages('DT')
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install('org.Hs.eg.db')
+BiocManager::install('org.Mm.eg.db')
+BiocManager::install('GO.db')
 library(devtools)
-
 install_github('lengning/allez')
-
 install_github('lengning/EACI/package/EACI')
 
-
-allez and EACI could also be found locally at https://github.com/lengning/Enrichment-test/tree/master/pkgs
-
-
-
+Note: allez and EACI could also be found locally at https://github.com/lengning/Enrichment-test/tree/master/pkgs
 
 ## Run the app
 
 In R, run:
 
 library(shiny)
-
 library(shinyFiles)
-
-runGitHub("lengning/Enrich_shiny")
-
-
+runGitHub("rhondabacher/Enrich_shiny")
 
 ![screen](https://github.com/lengning/Enrich_shiny/blob/master/figs/enrich_screenshot.png)
 
@@ -89,7 +74,6 @@ The output files contain GO term (NA for local sets), set p value, adjusted p va
 ## Note
 
 The 'create new folder' button in the output folder selection pop-up is disfunctional right now
-
 
 
 ## Trouble shooting
