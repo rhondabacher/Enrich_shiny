@@ -39,6 +39,8 @@ In R, run:
 
 > library(shinyFiles)
 
+> library(DT)
+
 > runGitHub("rhondabacher/Enrich_shiny")
 
 ![screen](https://github.com/lengning/Enrich_shiny/blob/master/figs/enrich_screenshot.png)
