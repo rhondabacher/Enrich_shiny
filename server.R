@@ -288,6 +288,39 @@ write.table(Local.p,file=paste0(outprefix,"_EACIenrichment_localsets_sig.txt"), 
 Out=list(Allres=MatOut2, Localres=LocalOut2, SigAllres=Mat.p, SigLocalres=Local.p)
 }
 
+getVolumesRB <- function () 
+{
+    osSystem <- Sys.info()["sysname"]
+    if (osSystem == "Darwin") {
+        volumes <- list.files("/Volumes/", full.names = T)
+        names(volumes) <- basename(volumes)
+    }
+    else if (osSystem == "Linux") {
+        volumes <- c(Computer = "/")
+        media <- list.files("/media/", full.names = T)
+        names(media) <- basename(media)
+        volumes <- c(volumes, media)
+    }
+    else if (osSystem == "Windows") {
+        volumes <- system("wmic logicaldisk get Caption", intern = T)
+        volumes <- sub(" *\\r$", "", volumes)
+        keep <- !tolower(volumes) %in% c("caption", "")
+        volumes <- volumes[keep]
+        volNames <- system("wmic logicaldisk get VolumeName", 
+            intern = T)
+        volNames <- sub(" *\\r$", "", volNames)
+        volNames <- volNames[keep]
+        volNames <- paste0(volNames, ifelse(volNames == "", "", 
+            " "))
+        volNames <- paste0(volNames, "(", volumes, ")")
+        names(volumes) <- volNames
+    }
+    else {
+        stop("unsupported OS")
+    }
+    volumes
+}
+		    
 #####################
 #####################
 # Define server logic for slider examples
@@ -300,8 +333,7 @@ shinyServer(function(input, output, session) {
 						
 		In <- reactive({
 	
-		print(input$Outdir)
-		outdir <- paste0("~/",input$Outdir[[1]][[2]],"/")
+		outdir <- parseDirPath(volumes, input$Outdir)
 		print(outdir)
 
 		the.file <- input$filename$name #input
