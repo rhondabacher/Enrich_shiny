@@ -1,5 +1,6 @@
 library(shiny)
 library(shinyFiles)
+library(DT)
 
 #####################
 # allez function
@@ -399,12 +400,14 @@ shinyServer(function(input, output, session) {
 							" (shown below); output directory:", tmp$Dir)
   })
 
-	output$tab <- renderDataTable({
-		tmp <- Act()$SigAllres
+output$tab <- DT::renderDataTable({
+		tmp <- Act()$SigAllres[,1:9]
+		tmp[,1] <- as.character(tmp[,1])
+		tmp[3:9]<-round(tmp[3:9], 3)
 		t1 <- tmp
 		print("done")
-		t1
-		},options = list(lengthManu = c(4,4), pageLength = 20))
+		DT::datatable(t1, rownames = F)
+		})
 
 #	output$done <- renderText({"Done"})
 })
