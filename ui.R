@@ -23,7 +23,10 @@ shinyUI(pageWithSidebar(
 							The program will generate a binary score vector which assigns 1 to genes in this file and assigns 0 to the other genes.
 							This file will be ignored if the scores are provided above.
 				    (support .csv,  .txt, .tab)"),					
-
+		fileInput("allgenes", label = "(optional) If entering alternative input above, here you can input the gene universe. 
+      			By default, all genes in the annotation package are considered as the 'other' genes. However, if a smaller 
+      			list of genes was originally tested, you can input it here. (support .csv,  .txt, .tab)"),		      			
+	
 		# marker list
 		fileInput("markerlist", label = "marker list \n file name (if not specified, only
 							GO sets will be considered;
