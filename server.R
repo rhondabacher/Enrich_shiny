@@ -327,7 +327,7 @@ getVolumesRB <- function ()
 #####################
 #####################
 shinyServer(function(input, output, session) {
-		volumes <- c('home'="~")
+		volumes <- getVolumesRB()
 		shinyDirChoose(input, 'Outdir', roots=volumes, session=session, restrictions=system.file(package='base'))
     output$Dir <- renderPrint({parseDirPath(volumes, input$Outdir)})
 						
