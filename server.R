@@ -1,13 +1,12 @@
 library(shiny)
 library(shinyFiles)
 library(DT)
-
 #####################
 # allez function
 #####################
 
 
-enrich_allez <- function(File, FileSep, alter, namev, Local, LocalSep, outprefix, lib.v, side,  Lowersetsize, Uppersetsize, pcut ){
+enrich_allez <- function(File, FileSep, alter, namev, alterTotal, nameTotalv, Local, LocalSep, outprefix, lib.v, side,  Lowersetsize, Uppersetsize, pcut ){
 
 # csv or txt
 FileType <- FileSep
@@ -27,8 +26,12 @@ if(FileType!="csv"){
 Score=In[[1]]
 names(Score)=rownames(In)
 }
+if(alterTotal==TRUE) {	
+ allgnames <- unique(nameTotalv)
+} else {
+ allgnames <- unique(unlist(as.list(get(paste0(lib.v,"SYMBOL")))))
+}
 if(alter==TRUE){
-	allgnames <- unique(unlist(as.list(get(paste0(lib.v,"SYMBOL")))))
 	Score <- rep(0, length(allgnames))
 	names(Score) <- as.vector(allgnames)
 	Score[intersect(names(Score),namev)] <- 1
@@ -288,6 +291,7 @@ write.table(Local.p,file=paste0(outprefix,"_EACIenrichment_localsets_sig.txt"), 
 Out=list(Allres=MatOut2, Localres=LocalOut2, SigAllres=Mat.p, SigLocalres=Local.p)
 }
 
+
 getVolumesRB <- function () 
 {
     osSystem <- Sys.info()["sysname"]
@@ -320,7 +324,7 @@ getVolumesRB <- function ()
     }
     volumes
 }
-		    
+
 #####################
 #####################
 # Define server logic for slider examples
@@ -329,13 +333,13 @@ getVolumesRB <- function ()
 shinyServer(function(input, output, session) {
 		volumes <- getVolumesRB()
 		shinyDirChoose(input, 'Outdir', roots=volumes, session=session, restrictions=system.file(package='base'))
-    output$Dir <- renderPrint({parseDirPath(volumes, input$Outdir)})
-						
+  output$Dir <- renderPrint({parseDirPath(volumes, input$Outdir)})
+    
 		In <- reactive({
-	
-		outdir <- parseDirPath(volumes, input$Outdir)
-		print(outdir)
 
+		outdir <- parseDirPath(volumes, input$Outdir)
+  print(outdir)
+  
 		the.file <- input$filename$name #input
 		file.tf <- ifelse(is.null(the.file),FALSE,TRUE)
 		file.toread <- NULL
@@ -362,9 +366,16 @@ shinyServer(function(input, output, session) {
 		gntf <- ifelse(is.null(gn.file),FALSE,TRUE)
 		if(!is.null(gn.file))namev <- read.csv(input$genename$datapath,stringsAsFactors=F, header=F)[[1]]
 		
+ 		namevAll <- NULL
+ 		gn.file.total <- input$allgenes$name
+ 		gntfAll <- ifelse(is.null(gn.file.total),FALSE,TRUE)
+ 		if(!is.null(gn.file.total))namevAll <- read.csv(input$allgenes$datapath,stringsAsFactors=F, header=F)[[1]]
+		
+  
 		method.v <- c("allez","EACI","EASE")
 		List <- list(
-		alterinput = gntf,	namev=namev,					 
+		alterinput = gntf,	namev=namev,		
+  alterTotalInput = gntfAll, nameTotalv=namevAll,		
 		Input = file.toread, Inputsep=file.sep,
 		mkInput = mklist.toread, mkSep=mklist.sep,
 		Dir=outdir, out_pre=input$exFileName,
@@ -376,7 +387,6 @@ shinyServer(function(input, output, session) {
 		pval_cutoff=input$pcut
 )
 		# main function
-  	str(List)
 		db.v <- List$species
 		if(db.v=="human")lib.v <- "org.Hs.eg"
 		if(db.v=="mouse")lib.v <- "org.Mm.eg"
@@ -387,6 +397,7 @@ shinyServer(function(input, output, session) {
 		if(List$method_use=="allez"){
 		Res <- enrich_allez(File=List$Input, FileSep=List$Inputsep, 
 												alter=List$alterinput, namev=List$namev,
+            alterTotal=List$alterTotalInput, nameTotalv=List$nameTotalv,
 												outprefix=paste(List$Dir,List$out_pre,sep="/"),
 							Local=List$mkInput, LocalSep=List$mkSep,
 							lib.v=lib.v, side=List$one_tail,  
